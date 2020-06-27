@@ -8,7 +8,7 @@ public interface UserService {
      * @param user
      * @return
      */
-    boolean regist(User user);
+    boolean register(User user);
 
     boolean active(String code);
 

@@ -86,17 +86,17 @@
 				if(checkUsername() && checkPassword() && checkEmail()){
 					//校验通过,发送ajax请求，提交表单的数据   username=zhangsan&password=123
 
-					$.post("registUserServlet",$(this).serialize(),function(data){
+					$.post("registerUserServlet",$(this).serialize(),function(data){
 						//处理服务器响应的数据  data  {flag:true,errorMsg:"注册失败"}
 
-						// if(data.flag){
-						// 	//注册成功，跳转成功页面
-						// 	location.href="register_ok.html";
-						// }else{
-						// 	//注册失败,给errorMsg添加提示信息
-						// 	$("#errorMsg").html(data.errorMsg);
+						if(data.flag){
+							//注册成功，跳转成功页面
+							location.href="register_ok.html";
+						}else{
+							//注册失败,给errorMsg添加提示信息
+							$("#errorMsg").html(data.errorMsg);
 
-						//}
+						}
 					});
 
 				}

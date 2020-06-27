@@ -13,7 +13,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author:liuzhao
@@ -22,6 +25,8 @@ import org.apache.commons.beanutils.BeanUtils;
  */
 @WebServlet("/registerUserServlet")
 public class RegisterUserServlet extends HttpServlet {
+
+    private static final Logger logger = LoggerFactory.getLogger(RegisterUserServlet.class);
 
     //1.
     @Override
@@ -32,28 +37,50 @@ public class RegisterUserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
+        //验证码校验 前台提交的验证码
+        String check = req.getParameter("check");
+
+        logger.info("验证码：{}",check);
+        //从session中获取验证码
+        HttpSession session = req.getSession();
+
+        String checkcode_server = (String) session.getAttribute("CHECKCODE_SERVER");
+        //清除session，验证码只用一次
+        session.removeAttribute("CHECKCODE_SERVER");
+        //比较
+        if (checkcode_server == null || !checkcode_server.equalsIgnoreCase(check)) {
+            ResultInfo resultInfo = new ResultInfo();
+            resultInfo.setFlag(false);
+            resultInfo.setErrorMsg("验证码错误");
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(resultInfo);
+            resp.setContentType("application/json;charset=utf-8");
+            resp.getWriter().write(json);
+            return;
+        }
         //1、获取数据
-        Map<String,String[]> map = req.getParameterMap();
+        Map<String, String[]> map = req.getParameterMap();
 
         //2、封装对象
         User user = new User();
         try {
-            BeanUtils.populate(user,map);
+            BeanUtils.populate(user, map);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            logger.error("封装对象异常1：", e);
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error("封装对象异常2：", e);
         }
         //3、调用service完成注册
         UserService service = new UserServiceImpl();
-        boolean flag = service.regist(user);
+        boolean flag = service.register(user);
         ResultInfo resultInfo = new ResultInfo();
         //4、响应结果
-        if(flag){
+        if (flag) {
             resultInfo.setFlag(true);
-        }else {
+        } else {
             resultInfo.setFlag(false);
-            resultInfo.setErrorMsg("注册失败");
+            resultInfo.setErrorMsg("注册失败:用户名已存在，请直接登录");
         }
         //5、将info对象序列化为json
         ObjectMapper mapper = new ObjectMapper();

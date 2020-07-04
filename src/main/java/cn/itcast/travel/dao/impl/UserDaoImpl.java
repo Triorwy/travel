@@ -25,7 +25,7 @@ public class UserDaoImpl implements UserDao {
             user = template.queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username);
 
         } catch (Exception e) {
-            logger.error("查询数据异常:",e);
+            logger.error("查询数据异常:", e);
         }
         return user;
     }
@@ -35,8 +35,8 @@ public class UserDaoImpl implements UserDao {
 
         //1:定义 sql
 
-        String sql = "insert into tab_user(username,password,name,birthday,sex,telephone,email)" +
-                " values(?,?,?,?,?,?,?)";
+        String sql = "insert into tab_user(username,password,name,birthday,sex,telephone,email,status,code)" +
+                " values(?,?,?,?,?,?,?,?,?)";
         template.update(sql,
                 user.getUsername(),
                 user.getPassword(),
@@ -44,6 +44,61 @@ public class UserDaoImpl implements UserDao {
                 user.getBirthday(),
                 user.getSex(),
                 user.getTelephone(),
-                user.getEmail());
+                user.getEmail(),
+                user.getStatus(),
+                user.getCode());
     }
+
+    /**
+     * 根据激活码查询用户对象
+     *
+     * @param code
+     * @return
+     */
+    @Override
+    public User findByCode(String code) {
+        User user = null;
+        try {
+            String sql = "select * from tab_user where code = ?";
+            user = template.queryForObject(sql, new BeanPropertyRowMapper<User>(User.class), code);
+        } catch (Exception e) {
+            logger.error("code查询数据异常:", e);
+        }
+        return user;
+    }
+
+    /**
+     * 修改用户激活状态
+     *
+     * @param user
+     */
+    @Override
+    public void updateStatus(User user) {
+
+        String sql = "update tab_user set status = 'Y' where uid= ?";
+        template.update(sql, user.getUid());
+    }
+
+    /**
+     * 根据用户名和密码查询
+     * @param username
+     * @param password
+     * @return
+     */
+    @Override
+    public User findByUserNameAndPassword(String username, String password) {
+        User user = null;
+        try {
+            //1、定义sql
+            String sql = "select * from tab_user where username = ? and password = ?";
+            //2、执行sql
+            user = template.queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username, password);
+
+        } catch (Exception e) {
+            logger.error("查询数据异常:", e);
+        }
+        return user;
+    }
+
+
 }

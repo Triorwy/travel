@@ -7,6 +7,7 @@ import java.util.UUID;
  */
 public final class UuidUtil {
 	private UuidUtil(){}
+	//生成全球唯一的uuid
 	public static String getUuid(){
 		return UUID.randomUUID().toString().replace("-","");
 	}

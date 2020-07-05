@@ -73,7 +73,6 @@ public class UserServlet extends BaseServlet{
             logger.error("封装对象异常2：", e);
         }
         //3、调用service完成注册
-        //UserService service = new UserServiceImpl();
         boolean flag = service.register(user);
         ResultInfo resultInfo = new ResultInfo();
         //4、响应结果
@@ -84,8 +83,7 @@ public class UserServlet extends BaseServlet{
             resultInfo.setErrorMsg("注册失败:用户名已存在，请直接登录");
         }
         //5、将info对象序列化为json
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(resultInfo);
+        String json = writeValueAsString(resultInfo);
 
         //6、将json数据写会客户端
         //设置content-type
@@ -118,8 +116,6 @@ public class UserServlet extends BaseServlet{
         }
 
         //3.调用service查询
-
-//        UserService userService = new UserServiceImpl();
         User loginUser = service.login(user);
 
         //4.判断登陆信息
@@ -139,10 +135,8 @@ public class UserServlet extends BaseServlet{
             resultInfo.setFlag(true);
             req.getSession().setAttribute("user",loginUser);//登录成功标记
         }
-        ObjectMapper mapper = new ObjectMapper();
-        resp.setContentType("application/json;charset=utf-8");
+        writeValue(resultInfo,resp);
 
-        mapper.writeValue(resp.getOutputStream(), resultInfo);
     }
 
     /**
@@ -156,16 +150,11 @@ public class UserServlet extends BaseServlet{
             throws ServletException, IOException {
 
         //从session中获取登陆用户
-
-        System.out.println("userServlet的add");
         Object user = req.getSession().getAttribute("user");
 
         //将user写回客户端
+        writeValue(user,resp);
 
-        ObjectMapper mapper = new ObjectMapper();
-
-        resp.setContentType("application/json;charset=utf-8");
-        mapper.writeValue(resp.getOutputStream(), user);
     }
 
 
@@ -182,7 +171,6 @@ public class UserServlet extends BaseServlet{
         req.getSession().invalidate();
 
         //2.跳转登陆页面
-
         resp.sendRedirect(req.getContextPath() + "/login.html");
     }
 

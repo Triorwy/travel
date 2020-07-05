@@ -1,6 +1,7 @@
 package cn.itcast.travel.web.servlet;
 
-import com.sun.scenario.effect.impl.sw.java.JSWBlend_SRC_OUTPeer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,8 +32,7 @@ public class BaseServlet extends HttpServlet {
         try {
             //忽略访问权限的控制：getDeclaredMethod
             Method method = this.getClass().getMethod(methodName, HttpServletRequest.class, HttpServletResponse.class);
-            //暴力反射
-            //method.setAccessible(true);
+            //4、执行方法
             method.invoke(this, req, resp);
 
         } catch (NoSuchMethodException e) {
@@ -43,7 +43,25 @@ public class BaseServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        //4、执行方法
+    }
 
+    /**
+     * 将传入的对象序列化为json，并返回给客户端
+     * @param obj
+     */
+    public void writeValue(Object obj, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        response.setContentType("application/json;charset=utf-8");
+        objectMapper.writeValue(response.getOutputStream(), obj);
+
+    }
+
+    /**
+     * 将传入对象序列化为json
+     * @param obj
+     */
+    public String writeValueAsString(Object obj) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(obj);
     }
 }

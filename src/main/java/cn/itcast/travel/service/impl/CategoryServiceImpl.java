@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Tuple;
 
 /**
  * @author:liuzhao
@@ -26,7 +27,9 @@ public class CategoryServiceImpl implements CategoryService {
         Jedis jedis = JedisUtil.getJedis();
 
         //1.2 使用sortedset排序查询，为了分类栏展示顺便按照一定顺序 0到-1代表查询全部
-        Set<String> categorys = jedis.zrange("category", 0, -1);
+        //Set<String> categorys = jedis.zrange("category", 0, -1);
+        //1,3 查询sortedset中分数（cid）和值（cname）
+        Set<Tuple> categorys = jedis.zrangeWithScores("category", 0, -1);
         List<Category> cs = null;
 
         //2.判断查询的集合是否为空
@@ -43,9 +46,10 @@ public class CategoryServiceImpl implements CategoryService {
             //将set数据存入list
             System.out.println("redis");
             cs = new ArrayList<Category>();
-            for(String category : categorys){
+            for(Tuple tuple : categorys){
                 Category ca = new Category();
-                ca.setCname(category);
+                ca.setCname(tuple.getElement());
+                ca.setCid((int)tuple.getScore());
                 cs.add(ca);
             }
         }

@@ -29,11 +29,12 @@ public class CategoryServiceImpl implements CategoryService {
         //1.2 使用sortedset排序查询，为了分类栏展示顺便按照一定顺序 0到-1代表查询全部
         //Set<String> categorys = jedis.zrange("category", 0, -1);
         //1,3 查询sortedset中分数（cid）和值（cname）
-        Set<Tuple> categorys = jedis.zrangeWithScores("category", 0, -1);
+        //Set<Tuple> categorys = jedis.zrangeWithScores("category", 0, -1);
         List<Category> cs = null;
+        cs = categoryDao.findAll();
 
         //2.判断查询的集合是否为空
-        if(categorys == null || categorys.size() == 0){
+        /*if(categorys == null || categorys.size() == 0){
             System.out.println("mysql");
             //3.如果为空，需要从数据库查询，将数据库存入redis中
             //3.1:从数据库查询
@@ -52,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
                 ca.setCid((int)tuple.getScore());
                 cs.add(ca);
             }
-        }
+        }*/
         //4 如果不为空，直接返回
         return cs;
     }
